@@ -2,10 +2,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 
 namespace Ternary.HyRest.DependencyInjection;
 
