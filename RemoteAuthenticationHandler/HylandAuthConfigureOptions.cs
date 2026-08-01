@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 
-namespace Ternary.HyRest.DependencyInjection;
+namespace HyRest.DependencyInjection;
 
 public sealed class HylandAuthConfigureOptions : IConfigureNamedOptions<OpenIdConnectOptions>
 {

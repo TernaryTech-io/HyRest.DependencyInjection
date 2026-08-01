@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System.Net;
-using Ternary.HyRest.Identity;
+using HyRest.Identity;
 
-namespace Ternary.HyRest.DependencyInjection;
+namespace HyRest.DependencyInjection;
 
 public static class HylandAppServiceExtensions
 {  

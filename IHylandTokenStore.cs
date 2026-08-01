@@ -4,9 +4,9 @@ using Duende.IdentityModel.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
-using AuthenticationToken = Ternary.HyRest.Identity.AuthenticationToken;
+using AuthenticationToken = HyRest.Identity.AuthenticationToken;
 
-namespace Ternary.HyRest;
+namespace HyRest;
 
 public class HylandTokenStore : IHylandTokenStore 
 {

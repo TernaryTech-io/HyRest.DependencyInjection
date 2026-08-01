@@ -18,7 +18,7 @@
 //using System.Text.Json;
 //using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
-//namespace Ternary.HyRest.DependencyInjection;
+//namespace HyRest.DependencyInjection;
 
 //public class HylandOpenIdConnectHandler : RemoteAuthenticationHandler<HylandAuthOptions>, IAuthenticationSignOutHandler
 //{

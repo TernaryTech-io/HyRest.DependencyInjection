@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Text.Encodings.Web;
 
-namespace Ternary.HyRest.DependencyInjection;
+namespace HyRest.DependencyInjection;
 
 public class HylandAuthenticationHandler : OpenIdConnectHandler
 {

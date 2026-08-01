@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Reflection.PortableExecutable;
 
-namespace Ternary.HyRest.DependencyInjection;
+namespace HyRest.DependencyInjection;
 
 public class HylandAuthOptions : OpenIdConnectOptions
 {
