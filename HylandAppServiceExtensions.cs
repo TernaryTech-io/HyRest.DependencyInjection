@@ -13,7 +13,7 @@ namespace HyRest.DependencyInjection;
 
 public static class HylandAppServiceExtensions
 {  
-    public static IHostApplicationBuilder AddSingletonHylandApp(this IHostApplicationBuilder builder, IAuthenticationCredentials credentials,
+    public static IHostApplicationBuilder AddHylandApp(this IHostApplicationBuilder builder, IAuthenticationCredentials credentials,
         Action<IAuthenticationCredentials, IHylandClientOptions> optionsAction)
     {
         builder.Services.AddHylandApp(credentials, optionsAction);
@@ -31,28 +31,28 @@ public static class HylandAppServiceExtensions
         return sc;
     }
 
-    //public static IHostApplicationBuilder AddScopedHylandApp(this IHostApplicationBuilder builder, IAuthenticationCredentials credentials,
-    //    Action<IAuthenticationCredentials, HylandClientOptions> optionsAction)
-    //{
-    //    builder.Services.AddHylandScopedApp(credentials, optionsAction);
-    //    return builder;
-    //}
-    //public static IServiceCollection AddHylandScopedApp(this IServiceCollection sc,
-    //    IAuthenticationCredentials credentials, Action<IAuthenticationCredentials, HylandClientOptions> optionsAction)
-    //{
-    //    sc.Configure<HylandAppOptionsBuilder>((options) =>
-    //    {
-    //        options.OptionsAction = optionsAction;
-    //        options.Credentials = credentials;
-    //    });
-    //    sc.AddScoped<OnBaseScopedApp>();
-    //    return sc;
-    //}
+    public static IHostApplicationBuilder AddHylandScopedApp(this IHostApplicationBuilder builder, IAuthenticationCredentials credentials,
+        Action<IAuthenticationCredentials, IHylandClientOptions> optionsAction)
+    {
+        builder.Services.AddHylandScopedApp(credentials, optionsAction);
+        return builder;
+    }
+    public static IServiceCollection AddHylandScopedApp(this IServiceCollection sc,
+        IAuthenticationCredentials credentials, Action<IAuthenticationCredentials, IHylandClientOptions> optionsAction)
+    {
+        sc.Configure<HylandAppOptionsBuilder>((options) =>
+        {
+            options.OptionsAction = optionsAction;
+            options.Credentials = credentials;
+        });
+        sc.AddScoped<OnBaseScopedApp>();
+        return sc;
+    }
 
-    public static IHostApplicationBuilder AddExternalAuthHylandApp(this IHostApplicationBuilder builder,
+    public static IHostApplicationBuilder AddOpenIdHylandApp(this IHostApplicationBuilder builder,
         Action<IHylandClientOptions> optionsAction, Action<OpenIdConnectOptions> authOptions)
     {
-        builder.Services.AddHylandApp(optionsAction, authOptions);
+        builder.Services.AddOpenIdHylandApp(optionsAction, authOptions);
         var options = new HylandClientOptions();        
         optionsAction(options);
         builder.Services.AddTransient<LicenseHeaderHandler>();
@@ -63,12 +63,12 @@ public static class HylandAppServiceExtensions
         {
             client.BaseAddress = new Uri(options.ApiBaseUrl);
         })
-        .ConfigurePrimaryHttpMessageHandler<SessionCookieClientHandler>()
-        .AddHttpMessageHandler<LicenseHeaderHandler>()
+        .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<SessionCookieClientHandler>())
+        .AddHttpMessageHandler(sp => sp.GetRequiredService<LicenseHeaderHandler>())
         .AddUserAccessTokenHandler();
         return builder;
     }
-    public static IServiceCollection AddHylandApp(this IServiceCollection sc, Action<IHylandClientOptions> optionsAction, Action<OpenIdConnectOptions> authOptions)
+    public static IServiceCollection AddOpenIdHylandApp(this IServiceCollection sc, Action<IHylandClientOptions> optionsAction, Action<OpenIdConnectOptions> authOptions)
     {
         sc.Configure<HylandOpenIdOptionsBuilder>((options) =>
         {
