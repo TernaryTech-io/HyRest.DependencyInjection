@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../HyRest/HyRest.csproj" />
+  <Project Path="HyRest.DependencyInjection.csproj" />
+</Solution>
