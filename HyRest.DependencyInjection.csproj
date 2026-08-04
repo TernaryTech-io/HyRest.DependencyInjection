@@ -1,24 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>Ternary-teal.ico</ApplicationIcon>
     <PackageIcon>Ternary-teal.png</PackageIcon>
+    <VersionPrefix>10.0.4</VersionPrefix>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="Ternary-teal.ico" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="..\..\resources\Ternary-teal.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Duende.AccessTokenManagement" />
     <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" />
@@ -30,11 +27,9 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\HyRest\HyRest.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Using Include="Microsoft.Extensions.Configuration" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
@@ -42,5 +37,4 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="HyRest" />
   </ItemGroup>
-
 </Project>

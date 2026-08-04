@@ -1,18 +1,14 @@
 ﻿using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
-using System.Net;
-using HyRest.Identity;
 
 namespace HyRest.DependencyInjection;
 
 public static class HylandAppServiceExtensions
-{  
+{
+    
     public static IHostApplicationBuilder AddHylandApp(this IHostApplicationBuilder builder, IAuthenticationCredentials credentials,
         Action<IAuthenticationCredentials, IHylandClientOptions> optionsAction)
     {
@@ -48,89 +44,83 @@ public static class HylandAppServiceExtensions
         sc.AddScoped<OnBaseScopedApp>();
         return sc;
     }
-
-    public static IHostApplicationBuilder AddOpenIdHylandApp(this IHostApplicationBuilder builder,
-        Action<IHylandClientOptions> optionsAction, Action<OpenIdConnectOptions> authOptions)
+    public static IHostApplicationBuilder AddOpenIdHylandApp<T>(this IHostApplicationBuilder builder,
+        Action<IHylandClientOptions> optionsAction, Action<OpenIdConnectOptions> authOptions) where T : class, IOnBaseApp
     {
-        builder.Services.AddOpenIdHylandApp(optionsAction, authOptions);
+        builder.Services.AddOpenIdHylandApp<T>(optionsAction, authOptions);
         var options = new HylandClientOptions();        
         optionsAction(options);
-        builder.Services.AddTransient<LicenseHeaderHandler>();
         builder.Services.AddTransient<SessionCookieClientHandler>();
-        var cookiecontainer = new CookieContainer();
-        builder.Services.AddSingleton(cookiecontainer);
+        builder.Services.AddUserAccessTokenHttpClient<HylandApiClient>(null, (sp, client) =>
+        {
+            client.BaseAddress = new Uri(options.ApiBaseUrl);
+        });
         builder.Services.AddHttpClient<HylandApiClient>(client =>
         {
             client.BaseAddress = new Uri(options.ApiBaseUrl);
         })
         .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<SessionCookieClientHandler>())
-        .AddHttpMessageHandler(sp => sp.GetRequiredService<LicenseHeaderHandler>())
         .AddUserAccessTokenHandler();
         return builder;
     }
-    public static IServiceCollection AddOpenIdHylandApp(this IServiceCollection sc, Action<IHylandClientOptions> optionsAction, Action<OpenIdConnectOptions> authOptions)
+    public static IServiceCollection AddOpenIdHylandApp<T>(this IServiceCollection sc, Action<IHylandClientOptions> optionsAction, 
+        Action<OpenIdConnectOptions> authOptions) where T : class, IOnBaseApp
     {
         sc.Configure<HylandOpenIdOptionsBuilder>((options) =>
         {
             options.OptionsAction = optionsAction;
-        });  
+        });
         sc.AddHylandAuthentication(authOptions);
         sc.AddOpenIdConnectAccessTokenManagement();
         sc.AddAuthorization();
         sc.AddSingleton<IHylandClientFactory,HylandClientFactory>();
-        sc.AddSingleton<OnBaseApp>();
+        if (typeof(T) == typeof(OnBaseApp))
+            sc.AddSingleton<OnBaseApp>();
+        else
+            sc.AddScoped<OnBaseScopedApp>();
         return sc;
     }
     public static AuthenticationBuilder AddHylandAuthentication(this IServiceCollection services, Action<OpenIdConnectOptions> authOptions)
-        => services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)        
+        => services.AddAuthentication(HylandAuthenticationDefaults.DefaultCookieScheme)        
         .AddCookie(options =>
         {
-
-            options.Cookie.Name = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.Cookie.Name = HylandAuthenticationDefaults.DefaultCookieScheme;
             options.Events.OnSigningOut = async e => { await e.HttpContext.RevokeRefreshTokenAsync(); };
         })
-        .AddHylandConnect("HylandIdS", authOptions);
-
-    public static AuthenticationBuilder AddHylandConnect(this AuthenticationBuilder builder, string authenticationScheme, Action<OpenIdConnectOptions> configureOptions)
+        .AddOpenIdConnect(HylandAuthenticationDefaults.AuthenticationScheme, authOptions);
+    public static OnBaseApp GetOnBaseApp(this IHost host)
+        => host.Services.GetRequiredService<OnBaseApp>();
+    public static OnBaseScopedApp GetOnBaseScopedApp(this IHost host)
     {
-        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<OpenIdConnectOptions>, HylandAuthConfigureOptions>());
-        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<OpenIdConnectOptions>, OpenIdConnectPostConfigureOptions>());
-        
-        return builder.AddRemoteScheme<OpenIdConnectOptions, HylandAuthenticationHandler>(authenticationScheme, OpenIdConnectDefaults.DisplayName, configureOptions);
+        var scope = host.Services.CreateAsyncScope();
+        return scope.ServiceProvider.GetRequiredService<OnBaseScopedApp>();
     }
-
-    public static WebApplication UseHylandAuthentication(this WebApplication web, string basePath = "/user")
+    public static WebApplication UseHylandAuthentication(this WebApplication web)
     {
         web.UseAuthentication();
         web.UseAuthorization();
-        web.MapGet($"{basePath}/login", (string? returnUrl, HttpContext context) =>
+        web.MapGet($"account/login", (string? returnUrl, HttpContext context) =>
         {
             var redirectUrl = returnUrl;
             var properties = new AuthenticationProperties
             {
-                RedirectUri = $"{basePath}/authorized",
+                RedirectUri = $"/account/authorized",
             };
-            return Results.Challenge(properties, new[] { "HylandIdS" });
+            return Results.Challenge(properties, new[] { HylandAuthenticationDefaults.AuthenticationScheme });
         });
 
-        web.MapGet($"{basePath}/logout", async (HttpContext ctx) =>
+        web.MapGet($"account/logout", async (HttpContext ctx) =>
         {
-            await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await ctx.SignOutAsync("HylandIdS",
+            await ctx.SignOutAsync(HylandAuthenticationDefaults.AuthenticationScheme);
+            await ctx.SignOutAsync(HylandAuthenticationDefaults.AuthenticationScheme,
                 new AuthenticationProperties { RedirectUri = "/" });
         });
-
-        // Simple endpoint to confirm auth worked / inspect claims
-        web.MapGet($"{basePath}/authorized", async (HttpContext ctx) =>
+        web.MapGet($"account/authorized", async (HttpContext ctx) =>
         {
             if (ctx.User?.Identity?.IsAuthenticated != true)
                 return Results.Unauthorized();
             return Results.Ok($"Authentication Successful. You can close this window.");
-        }).RequireAuthorization();
-        web.MapGet($"{basePath}/unauthorized", (HttpContext ctx) =>
-        {
-            return Results.Ok("You have been logged out.");
-        });
+        }).RequireAuthorization();  
         return web;
     }
 }
