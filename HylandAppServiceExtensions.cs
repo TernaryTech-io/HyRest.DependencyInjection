@@ -30,19 +30,7 @@ public static class HylandAppServiceExtensions
         web.MapGet($"account/authorized", async (HttpContext context) =>
         {
             if (context.User?.Identity?.IsAuthenticated != true)
-                return Results.Unauthorized();
-            var client = web.Services.GetRequiredService<HylandApiClient>(); 
-            var token = await context.GetUserAccessTokenAsync();
-            var disco = await client.HttpClient.GetDiscoveryDocumentAsync("https://onbase.ternarytech.io/auth");
-            var user = await client.HttpClient.GetUserInfoAsync(new UserInfoRequest
-            {
-                Address = disco.UserInfoEndpoint,
-                Token = token.Token.AccessToken
-            });
-            user.Claims.ToList().ForEach(c =>
-            {
-                Console.WriteLine(c);
-            });
+                return Results.Unauthorized();            
             return Results.Ok($"Authentication Successful. You can close this window.");
         }).RequireAuthorization();  
         return web;
