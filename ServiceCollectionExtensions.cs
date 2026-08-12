@@ -1,8 +1,11 @@
 ﻿using Duende.AccessTokenManagement.OpenIdConnect;
+using HyRest.Cache;
 using HyRest.Identity.Credentials;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Hybrid;
+using System.Runtime.CompilerServices;
 
 namespace HyRest.DependencyInjection;
 
@@ -16,7 +19,12 @@ public static class ServiceCollectionExtensions
             options.OptionsAction = optionsAction;
             options.Credentials = credentials;
         });
-        sc.AddSingleton<OnBaseApp>();
+        sc.AddTransient<OnBaseAppBuilder>();
+        sc.AddTransient<OnBaseApp>(sp =>
+        {
+            var builder = sp.GetRequiredService<OnBaseAppBuilder>();
+            return builder.Build();
+        });
         return sc;
     }
 
@@ -28,7 +36,27 @@ public static class ServiceCollectionExtensions
             options.OptionsAction = optionsAction;
             options.Credentials = credentials;
         });
-        sc.AddScoped<OnBaseScopedApp>();
+        sc.AddTransient<OnBaseAppBuilder>();
+        sc.AddTransient<OnBaseScopedApp>(sp =>
+        {
+            var builder = sp.GetRequiredService<OnBaseAppBuilder>();
+            return builder.BuildScoped();
+        });
+        return sc;
+    }
+    internal static IServiceCollection RegisterCommonServices(this IServiceCollection sc)
+    {
+
+        var options = new HylandClientOptions();
+        sc.AddHybridCache(options =>
+        {
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                Expiration = TimeSpan.FromHours(12),
+                LocalCacheExpiration = TimeSpan.FromMinutes(60),
+            };
+        });
+        sc.AddSingleton<IOnBaseAppCache, OnBaseAppCache>();
         return sc;
     }
 
@@ -46,8 +74,17 @@ public static class ServiceCollectionExtensions
         {
             return new HylandClientFactory(sp, credentials, sp.GetRequiredService<IHttpContextAccessor>());
         });
+        sc.AddHybridCache(options =>
+        {
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                Expiration = TimeSpan.FromHours(12),
+                LocalCacheExpiration = TimeSpan.FromMinutes(60),
+            };
+        });
+        sc.AddSingleton<IOnBaseAppCache, OnBaseAppCache>();
         if (typeof(T) == typeof(OnBaseApp))
-            sc.AddSingleton<OnBaseApp>();
+            sc.AddTransient<OnBaseApp>();
         else
             sc.AddScoped<OnBaseScopedApp>();
         return sc;

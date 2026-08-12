@@ -37,8 +37,7 @@ public static class HostApplicationBuilderExtensions
             authOptions.ResponseType = "code";
             authOptions.SignedOutCallbackPath = credentials.SignedOutCallbackPath;
             authOptions.SignedOutRedirectUri = credentials.SignedOutRedirectUri;
-            authOptions.GetClaimsFromUserInfoEndpoint = true;
-            authOptions.ResponseType = "code";
+            authOptions.GetClaimsFromUserInfoEndpoint = true; 
             authOptions.SaveTokens = true;
             authOptions.Scope.Clear();
             credentials.ScopeCollection.ToList().ForEach(s =>
