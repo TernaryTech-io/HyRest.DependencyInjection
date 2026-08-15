@@ -1,11 +1,9 @@
 ﻿using Duende.AccessTokenManagement.OpenIdConnect;
 using HyRest.Cache;
-using HyRest.Identity.Credentials;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Hybrid;
-using System.Runtime.CompilerServices;
 
 namespace HyRest.DependencyInjection;
 
@@ -14,6 +12,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddHylandApp(this IServiceCollection sc,
         IAuthenticationCredentials credentials, Action<IAuthenticationCredentials, IHylandClientOptions> optionsAction)
     {
+        sc.RegisterHylandCacheServices();
         sc.Configure<HylandClientOptionsBuilder>((options) =>
         {
             options.OptionsAction = optionsAction;
@@ -31,6 +30,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddHylandScopedApp(this IServiceCollection sc,
         IAuthenticationCredentials credentials, Action<IAuthenticationCredentials, IHylandClientOptions> optionsAction)
     {
+        sc.RegisterHylandCacheServices();
         sc.Configure<HylandClientOptionsBuilder>((options) =>
         {
             options.OptionsAction = optionsAction;
@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
         });
         return sc;
     }
-    internal static IServiceCollection RegisterCommonServices(this IServiceCollection sc)
+    internal static IServiceCollection RegisterHylandCacheServices(this IServiceCollection sc)
     {
 
         var options = new HylandClientOptions();
@@ -56,13 +56,14 @@ public static class ServiceCollectionExtensions
                 LocalCacheExpiration = TimeSpan.FromMinutes(60),
             };
         });
-        sc.AddSingleton<IOnBaseAppCache, OnBaseAppCache>();
+        sc.AddSingleton<OnBaseAppCache>();
         return sc;
     }
 
     public static IServiceCollection AddOpenIdHylandApp<T>(this IServiceCollection sc, OpenIdCredentials credentials, Action<IHylandClientOptions> optionsAction,
         Action<OpenIdConnectOptions> authOptions) where T : class, IOnBaseApp
     {
+        sc.RegisterHylandCacheServices();
         sc.Configure<HylandOpenIdClientOptionsBuilder>((options) =>
         {
             options.OptionsAction = optionsAction;
@@ -74,19 +75,7 @@ public static class ServiceCollectionExtensions
         {
             return new HylandClientFactory(sp, credentials, sp.GetRequiredService<IHttpContextAccessor>());
         });
-        sc.AddHybridCache(options =>
-        {
-            options.DefaultEntryOptions = new HybridCacheEntryOptions
-            {
-                Expiration = TimeSpan.FromHours(12),
-                LocalCacheExpiration = TimeSpan.FromMinutes(60),
-            };
-        });
-        sc.AddSingleton<IOnBaseAppCache, OnBaseAppCache>();
-        if (typeof(T) == typeof(OnBaseApp))
-            sc.AddTransient<OnBaseApp>();
-        else
-            sc.AddScoped<OnBaseScopedApp>();
+        OnBaseAppBuilder.RegisterAppServices<T>(sc);
         return sc;
     }
     public static AuthenticationBuilder AddHylandAuthentication(this IServiceCollection services, Action<OpenIdConnectOptions> authOptions)

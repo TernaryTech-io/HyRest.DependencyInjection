@@ -1,7 +1,4 @@
 ﻿using Duende.AccessTokenManagement.OpenIdConnect;
-using HyRest.Identity;
-using HyRest.Identity.Credentials;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace HyRest.DependencyInjection;
 
