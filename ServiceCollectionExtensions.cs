@@ -46,8 +46,6 @@ public static class ServiceCollectionExtensions
     }
     internal static IServiceCollection RegisterHylandCacheServices(this IServiceCollection sc)
     {
-
-        var options = new HylandClientOptions();
         sc.AddHybridCache(options =>
         {
             options.DefaultEntryOptions = new HybridCacheEntryOptions
@@ -60,18 +58,14 @@ public static class ServiceCollectionExtensions
         return sc;
     }
 
-    public static IServiceCollection AddOpenIdHylandApp<T>(this IServiceCollection sc, OpenIdCredentials credentials, Action<IHylandClientOptions> optionsAction,
+    public static IServiceCollection AddOpenIdHylandApp<T>(this IServiceCollection sc, OpenIdCredentials credentials,
         Action<OpenIdConnectOptions> authOptions) where T : class, IOnBaseApp
     {
-        sc.RegisterHylandCacheServices();
-        sc.Configure<HylandOpenIdClientOptionsBuilder>((options) =>
-        {
-            options.OptionsAction = optionsAction;
-        });
+        sc.RegisterHylandCacheServices();        
         sc.AddHylandAuthentication(authOptions);
         sc.AddOpenIdConnectAccessTokenManagement();
         sc.AddAuthorization();
-        sc.AddSingleton<IHylandClientFactory, HylandClientFactory>( sp =>
+        sc.AddSingleton( sp =>
         {
             return new HylandClientFactory(sp, credentials, sp.GetRequiredService<IHttpContextAccessor>());
         });

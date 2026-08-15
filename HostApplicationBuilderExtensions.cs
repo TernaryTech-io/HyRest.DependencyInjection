@@ -22,10 +22,11 @@ public static class HostApplicationBuilderExtensions
 
         var options = new HylandClientOptions();
         optionsAction(options);
+        builder.Services.AddSingleton(options);
         var credentials = new OpenIdCredentials();
         credentialAction(credentials);
 
-        builder.Services.AddOpenIdHylandApp<T>(credentials, optionsAction, authOptions =>
+        builder.Services.AddOpenIdHylandApp<T>(credentials, authOptions =>
         {
             authOptions.Authority = options.IdsBaseUrl;
             authOptions.ClientId = credentials.ClientId;
