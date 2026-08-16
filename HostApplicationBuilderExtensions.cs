@@ -26,7 +26,7 @@ public static class HostApplicationBuilderExtensions
         var credentials = new OpenIdCredentials();
         credentialAction(credentials);
 
-        builder.Services.AddOpenIdHylandApp<T>(credentials, authOptions =>
+        builder.Services.AddOpenIdHylandApp<T>(options, credentials, authOptions =>
         {
             authOptions.Authority = options.IdsBaseUrl;
             authOptions.ClientId = credentials.ClientId;

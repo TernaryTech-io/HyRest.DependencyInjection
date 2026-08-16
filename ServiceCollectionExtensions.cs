@@ -58,7 +58,7 @@ public static class ServiceCollectionExtensions
         return sc;
     }
 
-    public static IServiceCollection AddOpenIdHylandApp<T>(this IServiceCollection sc, OpenIdCredentials credentials,
+    public static IServiceCollection AddOpenIdHylandApp<T>(this IServiceCollection sc, HylandClientOptions options, OpenIdCredentials credentials,
         Action<OpenIdConnectOptions> authOptions) where T : class, IOnBaseApp
     {
         sc.RegisterHylandCacheServices();        
@@ -69,7 +69,7 @@ public static class ServiceCollectionExtensions
         {
             return new HylandClientFactory(sp, credentials, sp.GetRequiredService<IHttpContextAccessor>());
         });
-        OnBaseAppBuilder.RegisterAppServices<T>(sc);
+        OnBaseAppBuilder.RegisterAppServices<T>(sc,options);
         return sc;
     }
     public static AuthenticationBuilder AddHylandAuthentication(this IServiceCollection services, Action<OpenIdConnectOptions> authOptions)
