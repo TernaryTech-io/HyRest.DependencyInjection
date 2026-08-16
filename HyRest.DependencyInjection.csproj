@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>Ternary-teal.ico</ApplicationIcon>
     <PackageIcon>Ternary-teal.png</PackageIcon>
-    <VersionPrefix>10.0.7</VersionPrefix>
+    <VersionPrefix>10.0.8</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Ternary-teal.ico" />
@@ -30,7 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HyRest\HyRest.csproj" />
   </ItemGroup>
-  <ItemGroup>    
+  <ItemGroup>
     <Using Include="Microsoft.Extensions.Configuration" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Microsoft.Extensions.Hosting" />
