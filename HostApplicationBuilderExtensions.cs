@@ -1,7 +1,4 @@
 ﻿using Duende.AccessTokenManagement.OpenIdConnect;
-using HyRest.Identity;
-using HyRest.Identity.Credentials;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace HyRest.DependencyInjection;
 
@@ -25,10 +22,11 @@ public static class HostApplicationBuilderExtensions
 
         var options = new HylandClientOptions();
         optionsAction(options);
+        builder.Services.AddSingleton(options);
         var credentials = new OpenIdCredentials();
         credentialAction(credentials);
 
-        builder.Services.AddOpenIdHylandApp<T>(credentials, optionsAction, authOptions =>
+        builder.Services.AddOpenIdHylandApp<T>(credentials, authOptions =>
         {
             authOptions.Authority = options.IdsBaseUrl;
             authOptions.ClientId = credentials.ClientId;
@@ -37,8 +35,7 @@ public static class HostApplicationBuilderExtensions
             authOptions.ResponseType = "code";
             authOptions.SignedOutCallbackPath = credentials.SignedOutCallbackPath;
             authOptions.SignedOutRedirectUri = credentials.SignedOutRedirectUri;
-            authOptions.GetClaimsFromUserInfoEndpoint = true;
-            authOptions.ResponseType = "code";
+            authOptions.GetClaimsFromUserInfoEndpoint = true; 
             authOptions.SaveTokens = true;
             authOptions.Scope.Clear();
             credentials.ScopeCollection.ToList().ForEach(s =>

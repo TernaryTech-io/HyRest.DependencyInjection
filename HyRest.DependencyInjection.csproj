@@ -30,11 +30,20 @@
   <ItemGroup>
     <ProjectReference Include="..\HyRest\HyRest.csproj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup>    
     <Using Include="Microsoft.Extensions.Configuration" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Microsoft.Extensions.Hosting" />
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="HyRest" />
+    <Using Include="HyRest.OnBase" />
+    <Using Include="HyRest.OnBase.Administration" />
+    <Using Include="HyRest.OnBase.Core" />
+    <Using Include="HyRest.OnBase.Session" />
+    <Using Include="HyRest.OnBase.WorkView" />
+    <Using Include="Ternary.DataConversions" />
+    <Using Include="HyRest.API" />
+    <Using Include="HyRest.API.Models" />
+    <Using Include="HyRest.Identity" />
   </ItemGroup>
 </Project>
