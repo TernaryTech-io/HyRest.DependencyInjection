@@ -18,8 +18,8 @@ public static class ServiceCollectionExtensions
             options.OptionsAction = optionsAction;
             options.Credentials = credentials;
         });
-        sc.AddTransient<OnBaseAppBuilder>();
-        sc.AddTransient<OnBaseApp>(sp =>
+        sc.AddSingleton<OnBaseAppBuilder>();
+        sc.AddSingleton<OnBaseApp>(sp =>
         {
             var builder = sp.GetRequiredService<OnBaseAppBuilder>();
             return builder.Build();
@@ -36,8 +36,8 @@ public static class ServiceCollectionExtensions
             options.OptionsAction = optionsAction;
             options.Credentials = credentials;
         });
-        sc.AddTransient<OnBaseAppBuilder>();
-        sc.AddTransient<OnBaseScopedApp>(sp =>
+        sc.AddSingleton<OnBaseAppBuilder>();
+        sc.AddScoped<OnBaseScopedApp>(sp =>
         {
             var builder = sp.GetRequiredService<OnBaseAppBuilder>();
             return builder.BuildScoped();
@@ -65,6 +65,7 @@ public static class ServiceCollectionExtensions
         sc.AddHylandAuthentication(authOptions);
         sc.AddOpenIdConnectAccessTokenManagement();
         sc.AddAuthorization();
+        sc.AddHttpContextAccessor();
         sc.AddSingleton( sp =>
         {
             return new HylandClientFactory(sp, credentials, sp.GetRequiredService<IHttpContextAccessor>());
