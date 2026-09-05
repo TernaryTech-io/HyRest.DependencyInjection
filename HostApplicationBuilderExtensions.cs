@@ -38,9 +38,9 @@ public static class HostApplicationBuilderExtensions
             authOptions.GetClaimsFromUserInfoEndpoint = true; 
             authOptions.SaveTokens = true;
             authOptions.Scope.Clear();
-            credentials.ScopeCollection.ToList().ForEach(s =>
+            credentials.Scopes.ForEach(s =>
             {
-                authOptions.Scope.Add(s);
+                authOptions.Scope.Add(s.Value);
             });
         });
         
@@ -49,7 +49,7 @@ public static class HostApplicationBuilderExtensions
         {
             client.BaseAddress = new Uri(options.IdsBaseUrl);            
         });
-        builder.Services.AddHttpClient<HylandApiClient>(client =>
+        builder.Services.AddHttpClient<OnBaseApiClient>(client =>
         {
             client.BaseAddress = new Uri(options.ApiBaseUrl);
         })
