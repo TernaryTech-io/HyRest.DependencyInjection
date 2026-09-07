@@ -68,7 +68,7 @@ public static class ServiceCollectionExtensions
         sc.AddHttpContextAccessor();
         sc.AddSingleton( sp =>
         {
-            return new HylandClientFactory(sp, credentials, sp.GetRequiredService<IHttpContextAccessor>());
+            return new OnBaseClientFactory(sp, credentials, sp.GetRequiredService<IHttpContextAccessor>());
         });
         OnBaseAppBuilder.RegisterAppServices<T>(sc,options);
         return sc;
