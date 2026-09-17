@@ -46,14 +46,14 @@ public static class ServiceCollectionExtensions
     }
     internal static IServiceCollection RegisterHylandCacheServices(this IServiceCollection sc)
     {
-        sc.AddHybridCache(options =>
-        {
-            options.DefaultEntryOptions = new HybridCacheEntryOptions
-            {
-                Expiration = TimeSpan.FromHours(12),
-                LocalCacheExpiration = TimeSpan.FromMinutes(60),
-            };
-        });
+        //sc.AddHybridCache(options =>
+        //{            
+        //    options.DefaultEntryOptions = new HybridCacheEntryOptions
+        //    {
+        //        Expiration = TimeSpan.FromMinutes(30),
+        //        LocalCacheExpiration = TimeSpan.FromMinutes(5),                
+        //    };
+        //});
         sc.AddSingleton<OnBaseAppCache>();
         return sc;
     }
